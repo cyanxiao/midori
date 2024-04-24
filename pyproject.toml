@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "green-orchestrator"
+version = "0.1.0"
+description = ""
+authors = ["xxx <xxx>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+paramiko = "^3.4.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
