@@ -2,8 +2,9 @@ import paramiko
 import time
 from typing import List
 
+
 class Orchestrator:
-    def __init__(self, hostname: str, username: str, password: str, subject_path: str, trial_interval: int, 
+    def __init__(self, hostname: str, username: str, password: str, subject_path: str, trial_interval: int,
                  trial_derivatives: List[str], trial_end_waiting_time: int):
         self.hostname = hostname
         self.username = username
@@ -19,13 +20,15 @@ class Orchestrator:
     # launch an SSH connection to the remote server
     def connect(self):
         try:
-          self.ssh.connect(hostname=self.hostname, username=self.username, password=self.password)
+            self.ssh.connect(hostname=self.hostname,
+                             username=self.username, password=self.password)
         except Exception as e:
-          print(f"Failed to connect to the remote server: {e}")
-    
+            print(f"Failed to connect to the remote server: {e}")
+
     # navigate to the specified directory
     def navigate(self):
-        stdin, stdout, stderr = self.ssh.exec_command(f"cd {self.subject_path}")
+        stdin, stdout, stderr = self.ssh.exec_command(
+            f"cd {self.subject_path}")
         print(stdout.read().decode())
 
     # pause for the specified interval
@@ -39,4 +42,3 @@ class Orchestrator:
         time.sleep(self.trial_end_waiting_time)
 
     # collect data from the remote server
-    
