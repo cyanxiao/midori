@@ -14,7 +14,7 @@ class PodFileTransfer:
                 print(f"No pod starts with {self.pod_name_start}")
                 return
 
-            node_temp_path = self.copy_file_to_node(
+            node_temp_path = self.copy_files_to_node(
                 target_pod, file_path_in_pod, node_saving_path)
             if node_temp_path is None:
                 return
@@ -28,14 +28,24 @@ class PodFileTransfer:
         pod_list = stdout.read().decode('utf-8').split()
         return next((pod for pod in pod_list if pod.startswith(self.pod_name_start)), None)
 
-    def copy_file_to_node(self, pod: str, file_path_in_pod: str, node_saving_path: str) -> Optional[str]:
+    def copy_files_to_node(self, pod: str, file_path_in_pod: str, node_saving_path: str) -> Optional[str]:
+        # Ensure the destination directory exists
+        mkdir_cmd = f"mkdir -p {node_saving_path}"
+        stdin, stdout, stderr = self.ssh.exec_command(mkdir_cmd)
+        errors = stderr.read().decode()
+        if errors:
+            print(f"Error creating directory on node: {errors}")
+            return None
+        print(f"Directory {node_saving_path} created or already exists.")
+
+        # Proceed with copying files
         copy_cmd = f"kubectl cp {
-            self.namespace}/{pod}:{file_path_in_pod} {node_saving_path}"
+            self.namespace}/{pod}:{file_path_in_pod}/. {node_saving_path}/"
         print(copy_cmd)
         stdin, stdout, stderr = self.ssh.exec_command(copy_cmd)
         errors = stderr.read().decode()
         if errors:
-            print(f"Error copying file from pod: {errors}")
+            print(f"Error copying files from pod: {errors}")
             return None
-        print("File copied to node successfully.")
+        print("Files copied to node successfully.")
         return node_saving_path

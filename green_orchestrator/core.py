@@ -16,7 +16,7 @@ class Orchestrator:
         self.__trial_timespan: int = trial_timespan
         self.__pod_name_start: str = pod_name_start
         self.__namespace: str = namespace
-        self.__node_save_file_path: str = node_save_file_path
+        self.__base_node_save_file_path: str = node_save_file_path
         self.__ssh: paramiko.SSHClient = paramiko.SSHClient()
         self.__ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
@@ -40,10 +40,13 @@ class Orchestrator:
                 " && skaffold delete && skaffold run"
             self.__execute(command=command)
             self.__pause(interval=self.__trial_timespan)
+            # Append the treatment name to the base node save path
+            treatment_node_save_path = f"{
+                self.__base_node_save_file_path}/{treatment}"
             self.__pft: PodFileTransfer = PodFileTransfer(
                 self.__ssh, self.__pod_name_start, self.__namespace)
             self.__pft.transfer_file_from_pod(
-                self.__file_path_in_pod, self.__node_save_file_path)
+                self.__file_path_in_pod, treatment_node_save_path)
         self.__close()
 
     def checkout_branch_based_on_treatment(self, treatment: str) -> None:
