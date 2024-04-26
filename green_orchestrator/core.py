@@ -42,3 +42,7 @@ class Orchestrator:
         time.sleep(self.trial_end_waiting_time)
 
     # collect data from the remote server
+
+    # close the SSH connection
+    def close(self):
+        self.ssh.close()
