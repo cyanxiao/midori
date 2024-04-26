@@ -1,20 +1,19 @@
 import paramiko
 import time
-from typing import List
+from typing import List, Any
 from .file_transfer import PodFileTransfer
 
 
 class Orchestrator:
     def __init__(self, hostname: str, username: str, password: str, subject_path: str, trial_interval: int,
-                 pod_name_start: str, file_path_in_pod: str, node_save_file_path: str, local_save_file_path: str, namespace='default'):
-        self.__subject_path = subject_path
-        self.__file_path_in_pod = file_path_in_pod
-        self.__local_save_file_path = local_save_file_path
-        self.__pod_name_start = pod_name_start
-        self.__namespace = namespace
-        self.__node_save_file_path = node_save_file_path
-
-        self.__ssh = paramiko.SSHClient()
+                 pod_name_start: str, file_path_in_pod: str, node_save_file_path: str, local_save_file_path: str, namespace: str = 'default') -> None:
+        self.__subject_path: str = subject_path
+        self.__file_path_in_pod: str = file_path_in_pod
+        self.__local_save_file_path: str = local_save_file_path
+        self.__pod_name_start: str = pod_name_start
+        self.__namespace: str = namespace
+        self.__node_save_file_path: str = node_save_file_path
+        self.__ssh: paramiko.SSHClient = paramiko.SSHClient()
         self.__ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         try:
             self.__ssh.connect(hostname=hostname,
@@ -23,32 +22,25 @@ class Orchestrator:
         except Exception as e:
             print(f"Failed to connect to the remote server: {e}")
 
-    # run the orchestrator
-    def run(self):
-        command = "cd " + self.__subject_path + " && skaffold delete && skaffold run"
+    def run(self) -> None:
+        command: str = "cd " + self.__subject_path + \
+            " && skaffold delete && skaffold run"
         self.__execute(command=command)
-        self.__pause(float(100))
-        self.__pft = PodFileTransfer(
+        self.__pause(interval=100.0)
+        self.__pft: PodFileTransfer = PodFileTransfer(
             self.__ssh, self.__pod_name_start, self.__namespace)
         self.__pft.transfer_file_from_pod(
             self.__file_path_in_pod, self.__node_save_file_path)
         self.__close()
 
-    """
-    Basic Functions
-    """
-
-    # pause for the specified interval
-    def __pause(self, interval: float):
+    def __pause(self, interval: float) -> None:
         print(f"Pausing for {interval} seconds...")
         time.sleep(interval)
 
-    # execute the specified command
-    def __execute(self, command: str):
+    def __execute(self, command: str) -> None:
         stdin, stdout, stderr = self.__ssh.exec_command(command)
         print(command)
         print(stdout.read().decode())
 
-    # close the SSH connection
-    def __close(self):
+    def __close(self) -> None:
         self.__ssh.close()
