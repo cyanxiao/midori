@@ -5,7 +5,8 @@ from typing import List
 
 class Orchestrator:
     def __init__(self, hostname: str, username: str, password: str, subject_path: str, trial_interval: int,
-                 trial_derivatives: List[str], trial_end_waiting_time: int):
+                 trial_derivatives: List[str], trial_end_waiting_time: int,
+                 pod_name_start: str, file_path_in_pod: str, local_file_path: str):
         self.hostname = hostname
         self.username = username
         self.password = password
@@ -13,6 +14,9 @@ class Orchestrator:
         self.trial_interval = trial_interval
         self.trial_derivatives = trial_derivatives
         self.trial_end_waiting_time = trial_end_waiting_time
+        self.pod_name_start = pod_name_start
+        self.file_path_in_pod = file_path_in_pod
+        self.local_file_path = local_file_path
         self.ssh = paramiko.SSHClient()
         self.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         self.connect()
@@ -42,17 +46,17 @@ class Orchestrator:
         time.sleep(self.trial_end_waiting_time)
 
     # collect data from the remote server
-    def transfer_file_from_pod(self, pod_name_start: str, file_path_in_pod: str, local_file_path: str):
+    def transfer_file_from_pod(self):
         try:
             # Finding the pod
             stdin, stdout, stderr = self.ssh.exec_command(
                 f"kubectl get pods --no-headers -o custom-columns=':metadata.name'")
             pod_list = stdout.read().decode('utf-8').split()
             target_pod = next(
-                (pod for pod in pod_list if pod.startswith(pod_name_start)), None)
+                (pod for pod in pod_list if pod.startswith(self.pod_name_start)), None)
 
             if not target_pod:
-                print(f"No pod starts with {pod_name_start}")
+                print(f"No pod starts with {self.pod_name_start}")
                 return
 
             print(f"Target pod found: {target_pod}")
@@ -60,7 +64,7 @@ class Orchestrator:
             # Copy from the pod to the node
             node_temp_path = "/tmp/" + target_pod + "_file"
             copy_cmd = f"kubectl cp default/{target_pod}:{
-                file_path_in_pod} {node_temp_path}"
+                self.file_path_in_pod} {node_temp_path}"
             stdin, stdout, stderr = self.ssh.exec_command(copy_cmd)
             errors = stderr.read().decode()
             if errors:
@@ -70,7 +74,7 @@ class Orchestrator:
 
             # Transfer file from node to local machine using SFTP
             sftp = self.ssh.open_sftp()
-            sftp.get(node_temp_path, local_file_path)
+            sftp.get(node_temp_path, self.local_file_path)
             print("File transferred to local machine successfully.")
 
             # Cleanup node
