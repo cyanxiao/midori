@@ -30,20 +30,31 @@ class Orchestrator:
             print(f"Failed to connect to the remote server: {e}")
 
     def run(self) -> None:
-        self.__pause(interval=self.__trial_interval)
-        command: str = "cd " + self.__subject_path + \
-            " && skaffold delete && skaffold run"
-        self.__execute(command=command)
-        self.__pause(interval=self.__trial_timespan)
-        self.__pft: PodFileTransfer = PodFileTransfer(
-            self.__ssh, self.__pod_name_start, self.__namespace)
-        self.__pft.transfer_file_from_pod(
-            self.__file_path_in_pod, self.__node_save_file_path)
+        for treatment in self.treatments:
+            if not self.__is_a_branch_exist(treatment):
+                print(f"Branch {treatment} does not exist.")
+                continue
+            self.checkout_branch_based_on_treatment(treatment)
+            self.__pause(interval=self.__trial_interval)
+            command: str = "cd " + self.__subject_path + \
+                " && skaffold delete && skaffold run"
+            self.__execute(command=command)
+            self.__pause(interval=self.__trial_timespan)
+            self.__pft: PodFileTransfer = PodFileTransfer(
+                self.__ssh, self.__pod_name_start, self.__namespace)
+            self.__pft.transfer_file_from_pod(
+                self.__file_path_in_pod, self.__node_save_file_path)
         self.__close()
 
     def checkout_branch_based_on_treatment(self, treatment: str) -> None:
         command: str = f"cd {self.__subject_path} && git checkout {treatment}"
         self.__execute(command=command)
+
+    def __is_a_branch_exist(self, branch: str) -> bool:
+        command: str = f"cd {
+            self.__subject_path} && git branch --list {branch}"
+        stdin, stdout, stderr = self.__ssh.exec_command(command)
+        return bool(stdout.read().decode())
 
     def __pause(self, interval: float) -> None:
         print(f"Pausing for {interval} seconds...")
