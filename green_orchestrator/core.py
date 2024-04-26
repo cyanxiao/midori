@@ -42,6 +42,43 @@ class Orchestrator:
         time.sleep(self.trial_end_waiting_time)
 
     # collect data from the remote server
+    def transfer_file_from_pod(self, pod_name_start: str, file_path_in_pod: str, local_file_path: str):
+        try:
+            # Finding the pod
+            stdin, stdout, stderr = self.ssh.exec_command(
+                f"kubectl get pods --no-headers -o custom-columns=':metadata.name'")
+            pod_list = stdout.read().decode('utf-8').split()
+            target_pod = next(
+                (pod for pod in pod_list if pod.startswith(pod_name_start)), None)
+
+            if not target_pod:
+                print(f"No pod starts with {pod_name_start}")
+                return
+
+            print(f"Target pod found: {target_pod}")
+
+            # Copy from the pod to the node
+            node_temp_path = "/tmp/" + target_pod + "_file"
+            copy_cmd = f"kubectl cp default/{target_pod}:{
+                file_path_in_pod} {node_temp_path}"
+            stdin, stdout, stderr = self.ssh.exec_command(copy_cmd)
+            errors = stderr.read().decode()
+            if errors:
+                print(f"Error copying file from pod: {errors}")
+                return
+            print("File copied to node successfully.")
+
+            # Transfer file from node to local machine using SFTP
+            sftp = self.ssh.open_sftp()
+            sftp.get(node_temp_path, local_file_path)
+            print("File transferred to local machine successfully.")
+
+            # Cleanup node
+            self.execute(f"rm {node_temp_path}")
+            print("Temporary files on node removed.")
+
+        except Exception as e:
+            print(f"An error occurred: {str(e)}")
 
     # close the SSH connection
     def close(self):
