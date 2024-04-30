@@ -6,9 +6,9 @@ from .treatments_helper import get_treatments
 
 
 class Orchestrator:
-    def __init__(self, hostname: str, username: str, password: str, subject_path: str, trial_interval: int, trial_timespan: int,
+    def __init__(self, hostname: str, username: str, password: str, trial_interval: int, trial_timespan: int,
                  pod_name_start: str, file_path_in_pod: str, node_save_file_path: str, local_save_file_path: str, variables:  Dict[str, List[str]],
-                 namespace: str = 'default') -> None:
+                 namespace: str = 'default', subject_path: str = '.') -> None:
         self.__subject_path: str = subject_path
         self.__file_path_in_pod: str = file_path_in_pod
         self.__local_save_file_path: str = local_save_file_path
