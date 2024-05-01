@@ -1,7 +1,7 @@
 import paramiko
 import time
 from typing import List, Any, Dict
-from .file_transfer import PodFileTransfer
+from .plugins.helpers import PodHelper
 from .treatments_helper import get_treatments
 from .plugins.base import checkout_branch_based_on_treatment, is_a_branch_exist, pause, execute, close
 
@@ -52,7 +52,7 @@ class Orchestrator:
             pause(interval=self.__trial_timespan)
 
             # Collect energy data
-            self.__energy_collector: PodFileTransfer = PodFileTransfer(
+            self.__energy_collector: PodHelper = PodHelper(
                 self.__ssh, self.__prometheus_pod_name_start, self.__namespace)
             energy_node_save_path = f"{
                 self.__base_node_save_file_path}/{treatment}/energy.txt"
@@ -62,7 +62,7 @@ class Orchestrator:
             # Append the treatment name to the base node save path
             treatment_node_save_path = f"{
                 self.__base_node_save_file_path}/{treatment}"
-            self.__pft: PodFileTransfer = PodFileTransfer(
+            self.__pft: PodHelper = PodHelper(
                 self.__ssh, self.__pod_name_start, self.__namespace)
             self.__pft.transfer_file_from_pod(
                 self.__file_path_in_pod, treatment_node_save_path)

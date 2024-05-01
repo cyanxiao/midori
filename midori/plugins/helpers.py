@@ -2,7 +2,7 @@ from typing import Optional
 import time
 
 
-class PodFileTransfer:
+class PodHelper:
     def __init__(self, ssh, pod_name_start, namespace='default'):
         self.ssh = ssh
         self.pod_name_start = pod_name_start
