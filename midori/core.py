@@ -3,6 +3,7 @@ import time
 from typing import List, Any, Dict
 from .file_transfer import PodFileTransfer
 from .treatments_helper import get_treatments
+from .plugins.base import checkout_branch_based_on_treatment, is_a_branch_exist, pause, execute, close
 
 
 class Orchestrator:
@@ -31,16 +32,17 @@ class Orchestrator:
 
     def run(self) -> None:
         for treatment in self.treatments:
-            if not self.__is_a_branch_exist(treatment):
+            if not is_a_branch_exist(branch=treatment, subject_path=self.__subject_path, ssh=self.__ssh):
                 print(f"Branch {treatment} does not exist.")
                 continue
-            self.checkout_branch_based_on_treatment(treatment)
-            self.__pause(interval=self.__trial_interval)
+            checkout_branch_based_on_treatment(
+                treatment=treatment, ssh=self.__ssh, subject_path=self.__subject_path)
+            pause(interval=self.__trial_interval)
             command: str = "cd " + self.__subject_path + \
                 " && skaffold delete && skaffold run"
-            self.__execute(command=command)
+            execute(command=command, ssh=self.__ssh)
 
-            self.__pause(interval=self.__trial_timespan)
+            pause(interval=self.__trial_timespan)
 
             # # Collect energy data
             self.__energy_collector: PodFileTransfer = PodFileTransfer(
@@ -57,29 +59,5 @@ class Orchestrator:
                 self.__ssh, self.__pod_name_start, self.__namespace)
             self.__pft.transfer_file_from_pod(
                 self.__file_path_in_pod, treatment_node_save_path)
-        # skaffold_delete_command: str = "cd " + \
-        #     self.__subject_path + " && skaffold delete"
-        # self.__execute(command=skaffold_delete_command)
-        self.__close()
 
-    def checkout_branch_based_on_treatment(self, treatment: str) -> None:
-        command: str = f"cd {self.__subject_path} && git checkout {treatment}"
-        self.__execute(command=command)
-
-    def __is_a_branch_exist(self, branch: str) -> bool:
-        command: str = f"cd {
-            self.__subject_path} && git branch --list {branch}"
-        stdin, stdout, stderr = self.__ssh.exec_command(command)
-        return bool(stdout.read().decode())
-
-    def __pause(self, interval: float) -> None:
-        print(f"Pausing for {interval} seconds...")
-        time.sleep(interval)
-
-    def __execute(self, command: str) -> None:
-        stdin, stdout, stderr = self.__ssh.exec_command(command)
-        print(command)
-        print(stdout.read().decode())
-
-    def __close(self) -> None:
-        self.__ssh.close()
+        close(ssh=self.__ssh)
