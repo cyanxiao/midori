@@ -31,17 +31,24 @@ class Orchestrator:
             print(f"Failed to connect to the remote server: {e}")
 
     def run(self) -> None:
+        print("Starting the experiment...")
+        print(f"Treatments: {self.treatments}")
         for treatment in self.treatments:
             if not is_a_branch_exist(branch=treatment, subject_path=self.__subject_path, ssh=self.__ssh):
                 print(f"Branch {treatment} does not exist.")
                 continue
             checkout_branch_based_on_treatment(
                 treatment=treatment, ssh=self.__ssh, subject_path=self.__subject_path)
+
+            # Cooling time
             pause(interval=self.__trial_interval)
+
+            # Start the trial
             command: str = "cd " + self.__subject_path + \
                 " && skaffold delete && skaffold run"
             execute(command=command, ssh=self.__ssh)
 
+            # Each trial runs for a specific timespan
             pause(interval=self.__trial_timespan)
 
             # Collect energy data
