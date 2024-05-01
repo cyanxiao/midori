@@ -44,7 +44,7 @@ class Orchestrator:
 
             pause(interval=self.__trial_timespan)
 
-            # # Collect energy data
+            # Collect energy data
             self.__energy_collector: PodFileTransfer = PodFileTransfer(
                 self.__ssh, self.__prometheus_pod_name_start, self.__namespace)
             energy_node_save_path = f"{
