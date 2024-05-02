@@ -1,12 +1,11 @@
 import paramiko
-from typing import List, Dict
-from .plugins.helpers import PodHelper
+from typing import List, Dict, Type
+from .plugins.helpers import PodHelper, PluginHelper
 from .treatments_helper import get_treatments
 from .plugins.base import (
     checkout_branch_based_on_treatment,
     is_a_branch_exist,
     pause,
-    execute,
     close,
 )
 
@@ -17,8 +16,10 @@ class Orchestrator:
         hostname: str,
         username: str,
         password: str,
-        trial_interval: int,
+        before_trial_cooling_time: int,
+        setup_plugins: List[Type[PluginHelper]],
         trial_timespan: int,
+        after_trial_cooling_time: int,
         pod_name_start: str,
         file_path_in_pod: str,
         node_save_file_path: str,
@@ -29,8 +30,10 @@ class Orchestrator:
     ) -> None:
         self.__subject_path: str = subject_path
         self.__file_path_in_pod: str = file_path_in_pod
-        self.__trial_interval: int = trial_interval
+        self.__before_trial_cooling_time: int = before_trial_cooling_time
         self.__trial_timespan: int = trial_timespan
+        self.__setup_plugins: List[Type[PluginHelper]] = setup_plugins
+        self.__after_trial_cooling_time: int = after_trial_cooling_time
         self.__pod_name_start: str = pod_name_start
         self.__namespace: str = namespace
         self.__base_node_save_file_path: str = node_save_file_path
@@ -60,13 +63,17 @@ class Orchestrator:
             )
 
             # Cooling time
-            pause(interval=self.__trial_interval)
+            pause(interval=self.__before_trial_cooling_time)
 
-            # Start the trial
-            command: str = (
-                "cd " + self.__subject_path + " && skaffold delete && skaffold run"
-            )
-            execute(command=command, ssh=self.__ssh)
+            # Setup plugins
+            output = None
+            for Plugin in self.__setup_plugins:
+                plugin = Plugin(
+                    ssh=self.__ssh,
+                    subject_path=self.__subject_path,
+                    previous_output=output,
+                )
+                output = plugin.execute()
 
             # Each trial runs for a specific timespan
             pause(interval=self.__trial_timespan)
