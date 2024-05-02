@@ -16,7 +16,13 @@ Midori is an orchestrator that allows researchers to run software engineering ex
 
 ## 🚀 Getting Started
 
-Install Midori by running `pip install midori`. Initialize the orchestrator with the following parameters and run:
+### Installation
+
+`pip install midori`
+
+### Usage
+
+Initialize the orchestrator with the following parameters and run:
 
 ```python
 from midori.core import Orchestrator
