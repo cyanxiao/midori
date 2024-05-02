@@ -18,9 +18,11 @@ class PluginHelper:
     @final
     def execute(self) -> Optional[str]:
         command = self.action()
-        return execute(command, self.ssh)
+        if command:
+            return execute(command, self.ssh)
+        return None
 
-    def action(self) -> str:
+    def action(self) -> Optional[str]:
         raise NotImplementedError("Subclasses must implement this method")
 
 
