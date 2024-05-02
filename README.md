@@ -12,7 +12,9 @@ Midori is an orchestrator that allows researchers to run software engineering ex
   - ...
 - **What is an orchestrator?** Mitori is meant to be a local tool that manipulates the remote cluster to run the experiments using SSH. In this way, the overhead of the experiment on the remote cluster is minimized.
 
-![Midori as an orchestrator](./illustrations/communication.png)
+<div align="center">
+  <img src="./illustrations/communication.png" alt="Midori as an orchestrator" width="50%">
+</div>
 
 ## 🚀 Getting Started
 
@@ -62,7 +64,9 @@ orchestrator.run()
 
 To help you better understand this, the green boxes in the following illustration represent the parameters:
 
-![Parameters](./illustrations/flowchart.png)
+<div align="center">
+  <img src="./illustrations/flowchart.png" alt="Parameters" width="50%">
+</div>
 
 ### What are these Plugins?
 
