@@ -1,0 +1,26 @@
+name: Ruff and Publish
+
+on:
+  push:
+    branches:
+      - "**"
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Ruff Linter
+        uses: chartboost/ruff-action@v1
+
+  publish:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' # Executes only for pushes to the main branch
+    needs: lint
+    steps:
+      - uses: actions/checkout@v4
+      - name: Publish Package
+        uses: JRubics/poetry-publish@v2.0
+        with:
+          pypi-token: ${{ secrets.PYPI_API_TOKEN }}
+          poetry-version: "1.8.7"
