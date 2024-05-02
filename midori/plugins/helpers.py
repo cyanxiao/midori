@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, final
 from .base import execute
 import time
 import paramiko
@@ -15,6 +15,7 @@ class PluginHelper:
         self.subject_path = subject_path
         self.previous_output = previous_output
 
+    @final
     def execute(self) -> Optional[str]:
         command = self.action()
         return execute(command, self.ssh)
