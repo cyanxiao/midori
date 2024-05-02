@@ -25,8 +25,14 @@ jobs:
         with:
           script: |
             const payload = context.payload;
-            const headCommit = payload.commits[payload.commits.length - 1];
-            const changedFiles = headCommit.modified.concat(headCommit.added).concat(headCommit.removed);
+            let changedFiles = [];
+
+            for (const commit of payload.commits) {
+              if (commit.modified) changedFiles = changedFiles.concat(commit.modified);
+              if (commit.added) changedFiles = changedFiles.concat(commit.added);
+              if (commit.removed) changedFiles = changedFiles.concat(commit.removed);
+            }
+
             const isVersionChanged = changedFiles.includes('pyproject.toml');
 
             if (!isVersionChanged) {
@@ -48,8 +54,3 @@ jobs:
               return false;
             }
           result-encoding: string
-      - name: Publish Package
-        if: steps.check_version.outputs.new_version
-        uses: JRubics/poetry-publish@v2.0
-        with:
-          pypi_token: ${{ secrets.PYPI_API_TOKEN }}
