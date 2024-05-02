@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "midori"
-version = "1.0.0"
+version = "1.0.1"
 description = "🍃 streamline remote software engineering experiments"
 authors = ["Xingwen Xiao <xingwen.xiao@student.uva.nl>"]
 readme = "README.md"

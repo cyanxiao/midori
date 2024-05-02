@@ -10,7 +10,7 @@ Midori is a plugin-based orchestrator that allows researchers to run software en
   - Randomizing the order of the trials.
   - Switching between different treatments.
   - ...
-- **What is an orchestrator?** Mitori is meant to be a local tool that manipulates the remote cluster to run the experiments using SSH. In this way, the overhead of the experiment on the remote cluster is minimized.
+- **What is an orchestrator?** Midori is meant to be a local tool that manipulates the remote cluster to run the experiments using SSH. In this way, the overhead of the experiment on the remote cluster is minimized.
 
 <div align="center">
   <img src="./illustrations/communication.png" alt="Midori as an orchestrator" width="50%">
@@ -64,7 +64,7 @@ The `subject_path` should be a git repository that contains branches named `oran
 
 ### Parameters
 
-- `hostname`, `username`, `password`: Mitori needs these parameters to connect to the remote node via SSH.
+- `hostname`, `username`, `password`: Midori needs these parameters to connect to the remote node via SSH.
 - `repetitions`: The number of repetitions for the experiment.
 - `before_trial_cooling_time`: The cooling time before each trial, in seconds.
 - `trial_timespan`: The time span of each trial, in seconds.
