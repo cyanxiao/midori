@@ -16,15 +16,15 @@ class Orchestrator:
         hostname: str,
         username: str,
         password: str,
-        before_experiment_plugins: List[Type[PluginHelper]],
         before_trial_cooling_time: int,
-        setup_plugins: List[Type[PluginHelper]],
         trial_timespan: int,
-        end_trial_plugins: List[Type[PluginHelper]],
         after_trial_cooling_time: int,
-        end_experiment_plugins: List[Type[PluginHelper]],
         variables: Dict[str, List[str]],
         subject_path: str,
+        before_experiment_plugins: List[Type[PluginHelper]] = [],
+        setup_plugins: List[Type[PluginHelper]] = [],
+        end_trial_plugins: List[Type[PluginHelper]] = [],
+        end_experiment_plugins: List[Type[PluginHelper]] = [],
     ) -> None:
         self.__before_experiment_plugins: List[Type[PluginHelper]] = (
             before_experiment_plugins
