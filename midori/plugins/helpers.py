@@ -1,5 +1,21 @@
 from typing import Optional
+from .base import execute
 import time
+import paramiko
+
+
+class PluginHelper:
+    def __init__(self, ssh: paramiko.SSHClient, subject_path: str, previous_output: Optional[str] = None):
+        self.ssh = ssh
+        self.subject_path = subject_path
+        self.previous_output = previous_output
+
+    def execute(self) -> Optional[str]:
+        command = self.action()
+        return execute(command, self.ssh)
+
+    def action(self) -> str:
+        raise NotImplementedError("Subclasses must implement this method")
 
 
 class PodHelper:

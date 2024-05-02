@@ -1,6 +1,7 @@
 import time
 import logging
 from paramiko import SSHClient
+from typing import Optional
 
 logging.basicConfig(level=logging.INFO)
 
@@ -31,13 +32,14 @@ def pause(interval: float) -> None:
     time.sleep(interval)
 
 
-def execute(command: str, ssh: SSHClient) -> None:
+def execute(command: str, ssh: SSHClient) -> Optional[str]:
     """Execute a command over SSH and log the output or error."""
     try:
         stdin, stdout, stderr = ssh.exec_command(command)
         output = stdout.read().decode()
         if output:
             logging.info(f"Command output: {output}")
+            return output
         else:
             logging.info(f"Executed command with no output: {command}")
     except Exception as e:
