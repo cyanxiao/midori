@@ -12,7 +12,7 @@ class PluginHelper:
         treatment: str,
         previous_output: Optional[str] = None,
     ):
-        self.ssh = ssh
+        self._ssh = ssh
         self.subject_path = subject_path
         self.previous_output = previous_output
         self.treatment = treatment
@@ -21,7 +21,7 @@ class PluginHelper:
     def execute(self) -> Optional[str]:
         command = self.action()
         if command:
-            return execute(command, self.ssh)
+            return execute(command, self._ssh)
         return None
 
     def action(self) -> Optional[str]:
