@@ -16,6 +16,7 @@ class Orchestrator:
         hostname: str,
         username: str,
         password: str,
+        repetitions: int,
         before_trial_cooling_time: int,
         trial_timespan: int,
         after_trial_cooling_time: int,
@@ -26,6 +27,7 @@ class Orchestrator:
         end_trial_plugins: List[Type[PluginHelper]] = [],
         end_experiment_plugins: List[Type[PluginHelper]] = [],
     ) -> None:
+        self.__repetitions: int = repetitions
         self.__before_experiment_plugins: List[Type[PluginHelper]] = (
             before_experiment_plugins
         )
@@ -62,46 +64,52 @@ class Orchestrator:
             output = plugin.execute()
 
         print(f"Treatments: {self.treatments}")
-        for treatment in self.treatments:
-            if not is_a_branch_exist(
-                branch=treatment, subject_path=self.__subject_path, ssh=self.__ssh
-            ):
-                print(f"Branch {treatment} does not exist.")
-                continue
-            checkout_branch_based_on_treatment(
-                treatment=treatment, ssh=self.__ssh, subject_path=self.__subject_path
-            )
 
-            # Before Trial Cooling time
-            pause(interval=self.__before_trial_cooling_time)
+        for i in range(self.__repetitions):
+            print(f"Repetition {i+1}")
 
-            # Setup plugins
-            output = None
-            for Plugin in self.__setup_plugins:
-                plugin = Plugin(
+            for treatment in self.treatments:
+                if not is_a_branch_exist(
+                    branch=treatment, subject_path=self.__subject_path, ssh=self.__ssh
+                ):
+                    print(f"Branch {treatment} does not exist.")
+                    continue
+                checkout_branch_based_on_treatment(
+                    treatment=treatment,
                     ssh=self.__ssh,
                     subject_path=self.__subject_path,
-                    treatment=treatment,
-                    previous_output=output,
                 )
-                output = plugin.execute()
 
-            # Each trial runs for a specific timespan
-            pause(interval=self.__trial_timespan)
+                # Before Trial Cooling time
+                pause(interval=self.__before_trial_cooling_time)
 
-            # End Trial plugins
-            output = None
-            for Plugin in self.__end_trial_plugins:
-                plugin = Plugin(
-                    ssh=self.__ssh,
-                    subject_path=self.__subject_path,
-                    treatment=treatment,
-                    previous_output=output,
-                )
-                output = plugin.execute()
+                # Setup plugins
+                output = None
+                for Plugin in self.__setup_plugins:
+                    plugin = Plugin(
+                        ssh=self.__ssh,
+                        subject_path=self.__subject_path,
+                        treatment=treatment,
+                        previous_output=output,
+                    )
+                    output = plugin.execute()
 
-            # After Trial Cooling time
-            pause(interval=self.__after_trial_cooling_time)
+                # Each trial runs for a specific timespan
+                pause(interval=self.__trial_timespan)
+
+                # End Trial plugins
+                output = None
+                for Plugin in self.__end_trial_plugins:
+                    plugin = Plugin(
+                        ssh=self.__ssh,
+                        subject_path=self.__subject_path,
+                        treatment=treatment,
+                        previous_output=output,
+                    )
+                    output = plugin.execute()
+
+                # After Trial Cooling time
+                pause(interval=self.__after_trial_cooling_time)
 
         # End Experiment plugins
         output = None
