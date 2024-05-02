@@ -54,6 +54,34 @@ orchestrator.run()
 - `end_trial_plugins`: The plugins to be run after each trial.
 - `end_experiment_plugins`: The plugins to be run after the experiment.
 
+To help you better understand this, the green boxes in the following illustration represent the parameters:
+
+![Parameters](./illustrations/flowchart.png)
+
+### What are these Plugins?
+
+Clearly there are 4 parameters that invoke the plugins to be run at different stages of the experiment. The 4 parameters are lists of **class definitions** (not instances).
+
+The way we define these plugins is by inheriting from the `PluginHelper` class and overriding the `action` method. Here is an example:
+
+```python
+from .helpers import PluginHelper
+
+class SkaffoldSetup(PluginHelper):
+    def action(self) -> str:
+        return f"cd {self.subject_path} && skaffold delete && skaffold run"
+
+class CheckRam(PluginHelper):
+    def action(self) -> str:
+        return "cat /proc/meminfo | grep MemTotal"
+```
+
+`action()` method should return either an `str` or `None`. If it returns an `str`, it will be executed on the remote cluster. If it returns `None`, it will be skipped. You may want to implement side effects in the `action()` method based on 3 accessible attributes:
+
+- `self.subject_path`: The path of the subject to be run on the remote cluster, which is the same as the `subject_path` parameter of `Orchestrator`.
+- `self.previous_output`: The output of the previous plugin. For example, if `end_trial_plugins = [CheckRam, NewPlugin]`, where `CheckRam` is the plugin shown above, the `NewPlugin` will have access to the output of `CheckRam` in `self.previous_output` as `MemTotal:       900000000 kB`.
+- `self.treatment`: The treatment of the current trial.
+
 ## 🚧 Development and Contribution
 
 1. Install [poetry](https://python-poetry.org/docs/#installation).
@@ -61,3 +89,7 @@ orchestrator.run()
 3. Enter the virtual environment by running `poetry shell`.
 4. Run `pre-commit install` to install [pre-commit](https://pre-commit.com/) hooks.
 5. Develop on `dev` branch and create a pull request to `dev` branch.
+
+```
+
+```
