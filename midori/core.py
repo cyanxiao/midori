@@ -62,7 +62,7 @@ class Orchestrator:
                 treatment=treatment, ssh=self.__ssh, subject_path=self.__subject_path
             )
 
-            # Cooling time
+            # Before Trial Cooling time
             pause(interval=self.__before_trial_cooling_time)
 
             # Setup plugins
@@ -98,5 +98,8 @@ class Orchestrator:
             self.__pft.transfer_file_from_pod(
                 self.__file_path_in_pod, treatment_node_save_path
             )
+
+            # After Trial Cooling time
+            pause(interval=self.__after_trial_cooling_time)
 
         close(ssh=self.__ssh)
