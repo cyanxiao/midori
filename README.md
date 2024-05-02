@@ -24,7 +24,7 @@ Midori is a plugin-based orchestrator that allows researchers to run software en
 
 ### Usage
 
-Initialize the orchestrator with the following parameters and run:
+Initialize the orchestrator with the following [parameters](#parameters) and run:
 
 ```python
 from midori.core import Orchestrator
@@ -48,9 +48,21 @@ orchestrator = Orchestrator(
 orchestrator.run()
 ```
 
+### Remote Node and Experiment Subject Setup
+
+The `subject_path` is a directory on the remote node. As mentioned in the next section, `variables` represent the variables to be manipulated in the experiment, which should be reflected in the `subject_path`. `subject_path` should be a git repository that contains branches named of the combinations of the `variables`.
+
+For example, if `variable` is
+
+```python
+variables = {'drink': ['orange', 'apple', 'watermelon'], 'size': [300, 600, 100], 'temperature': [20, 30]}
+```
+
+The `subject_path` should be a git repository that contains branches named `orange-300-20`, `orange-300-30`, `orange-600-20`, `orange-600-30`, etc. You do not have to include all the combinations, Midori will skip the missing branches.
+
 ### Parameters
 
-- `hostname`, `username`, `password`: Mitori needs these parameters to connect to the remote cluster via SSH.
+- `hostname`, `username`, `password`: Mitori needs these parameters to connect to the remote node via SSH.
 - `repetitions`: The number of repetitions for the experiment.
 - `before_trial_cooling_time`: The cooling time before each trial, in seconds.
 - `trial_timespan`: The time span of each trial, in seconds.

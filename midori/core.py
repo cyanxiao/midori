@@ -1,4 +1,5 @@
 import paramiko
+import random
 from typing import List, Dict, Type
 from .plugins.helpers import PluginHelper
 from .treatments_helper import get_treatments
@@ -68,7 +69,8 @@ class Orchestrator:
         for i in range(self.__repetitions):
             print(f"Repetition {i+1}")
 
-            for treatment in self.treatments:
+            randomized_treatments = random.sample(self.treatments, len(self.treatments))
+            for treatment in randomized_treatments:
                 if not is_a_branch_exist(
                     branch=treatment, subject_path=self.__subject_path, ssh=self.__ssh
                 ):
