@@ -9,11 +9,13 @@ class PluginHelper:
         self,
         ssh: paramiko.SSHClient,
         subject_path: str,
+        treatment: str,
         previous_output: Optional[str] = None,
     ):
         self.ssh = ssh
         self.subject_path = subject_path
         self.previous_output = previous_output
+        self.treatment = treatment
 
     @final
     def execute(self) -> Optional[str]:

@@ -1,6 +1,6 @@
 import paramiko
 from typing import List, Dict, Type
-from .plugins.helpers import PodHelper, PluginHelper
+from .plugins.helpers import PluginHelper
 from .treatments_helper import get_treatments
 from .plugins.base import (
     checkout_branch_based_on_treatment,
@@ -19,6 +19,7 @@ class Orchestrator:
         before_trial_cooling_time: int,
         setup_plugins: List[Type[PluginHelper]],
         trial_timespan: int,
+        end_trial_plugins: List[Type[PluginHelper]],
         after_trial_cooling_time: int,
         pod_name_start: str,
         file_path_in_pod: str,
@@ -34,6 +35,7 @@ class Orchestrator:
         self.__trial_timespan: int = trial_timespan
         self.__setup_plugins: List[Type[PluginHelper]] = setup_plugins
         self.__after_trial_cooling_time: int = after_trial_cooling_time
+        self.__end_trial_plugins: List[Type[PluginHelper]] = end_trial_plugins
         self.__pod_name_start: str = pod_name_start
         self.__namespace: str = namespace
         self.__base_node_save_file_path: str = node_save_file_path
@@ -71,6 +73,7 @@ class Orchestrator:
                 plugin = Plugin(
                     ssh=self.__ssh,
                     subject_path=self.__subject_path,
+                    treatment=treatment,
                     previous_output=output,
                 )
                 output = plugin.execute()
@@ -78,26 +81,37 @@ class Orchestrator:
             # Each trial runs for a specific timespan
             pause(interval=self.__trial_timespan)
 
-            # Collect energy data
-            self.__energy_collector: PodHelper = PodHelper(
-                self.__ssh, self.__prometheus_pod_name_start, self.__namespace
-            )
-            energy_node_save_path = f"{
-                self.__base_node_save_file_path}/{treatment}/energy.json"
-            self.__energy_collector.execute_query_in_pod(
-                node_saving_path=energy_node_save_path,
-                query_cmd=self.__energy_collector.construct_query_cmd(),
-            )
+            # End Trial plugins
+            output = None
+            for Plugin in self.__end_trial_plugins:
+                plugin = Plugin(
+                    ssh=self.__ssh,
+                    subject_path=self.__subject_path,
+                    treatment=treatment,
+                    previous_output=output,
+                )
+                output = plugin.execute()
 
-            # Append the treatment name to the base node save path
-            treatment_node_save_path = f"{
-                self.__base_node_save_file_path}/{treatment}"
-            self.__pft: PodHelper = PodHelper(
-                self.__ssh, self.__pod_name_start, self.__namespace
-            )
-            self.__pft.transfer_file_from_pod(
-                self.__file_path_in_pod, treatment_node_save_path
-            )
+            # # Collect energy data
+            # self.__energy_collector: PodHelper = PodHelper(
+            #     self.__ssh, self.__prometheus_pod_name_start, self.__namespace
+            # )
+            # energy_node_save_path = f"{
+            #     self.__base_node_save_file_path}/{treatment}/energy.json"
+            # self.__energy_collector.execute_query_in_pod(
+            #     node_saving_path=energy_node_save_path,
+            #     query_cmd=self.__energy_collector.construct_query_cmd(),
+            # )
+
+            # # Append the treatment name to the base node save path
+            # treatment_node_save_path = f"{
+            #     self.__base_node_save_file_path}/{treatment}"
+            # self.__pft: PodHelper = PodHelper(
+            #     self.__ssh, self.__pod_name_start, self.__namespace
+            # )
+            # self.__pft.transfer_file_from_pod(
+            #     self.__file_path_in_pod, treatment_node_save_path
+            # )
 
             # After Trial Cooling time
             pause(interval=self.__after_trial_cooling_time)
