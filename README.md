@@ -50,7 +50,9 @@ orchestrator.run()
 
 ### Remote Node and Experiment Subject Setup
 
-The `subject_path` is a directory on the remote node. As mentioned in the next section, `variables` represent the variables to be manipulated in the experiment, which should be reflected in the `subject_path`. `subject_path` should be a git repository that contains branches named of the combinations of the `variables`.
+- The `subject_path` is a directory on the remote node.
+- As mentioned in the next section, `variables` represent the variables to be manipulated in the experiment, which should be reflected in the `subject_path`.
+- `subject_path` should be a git repository that contains branches named of the combinations of the `variables`. Each branch represents a treatment.
 
 For example, if `variable` is
 
