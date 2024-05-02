@@ -54,3 +54,8 @@ jobs:
               return false;
             }
           result-encoding: string
+      - name: Publish Package
+        if: steps.check_version.outputs.new_version
+        uses: JRubics/poetry-publish@v2.0
+        with:
+          pypi_token: ${{ secrets.PYPI_API_TOKEN }}
