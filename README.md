@@ -18,7 +18,11 @@ Midori is a plugin-based orchestrator that allows researchers to run software en
 
 ## 🚀 Getting Started
 
+[Plugins](#what-are-these-plugins) and [experiment subject](#remote-node-and-experiment-subject-setup) are essential to conducting experiments with Midori. Plugins are used to interact with experiment subject or the remote cluster as a whole.
+
 ### Installation
+
+Midori is only compatible with Python 3.12. Install it via pip or other package managers:
 
 `pip install midori`
 
@@ -50,9 +54,9 @@ orchestrator.run()
 
 ### Remote Node and Experiment Subject Setup
 
-- The `subject_path` is a directory on the remote node.
-- As mentioned in the next section, `variables` represent the variables to be manipulated in the experiment, which should be reflected in the `subject_path`.
-- `subject_path` should be a git repository that contains branches named of the combinations of the `variables`. Each branch represents a treatment.
+- The `subject_path` is a directory on the remote node. It is a valid experiment subject if
+  - It is a git repository.
+  - It contains branches named after the combinations of the `variables`. Each branch represents a treatment.
 
 For example, if `variable` is
 
