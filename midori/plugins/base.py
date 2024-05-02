@@ -6,7 +6,9 @@ from typing import Optional
 logging.basicConfig(level=logging.INFO)
 
 
-def checkout_branch_based_on_treatment(treatment: str, subject_path: str, ssh: SSHClient) -> None:
+def checkout_branch_based_on_treatment(
+    treatment: str, subject_path: str, ssh: SSHClient
+) -> None:
     """Checkout to a specific git branch."""
     try:
         command = f"cd {subject_path} && git checkout {treatment}"

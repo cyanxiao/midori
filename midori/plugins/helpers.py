@@ -5,7 +5,12 @@ import paramiko
 
 
 class PluginHelper:
-    def __init__(self, ssh: paramiko.SSHClient, subject_path: str, previous_output: Optional[str] = None):
+    def __init__(
+        self,
+        ssh: paramiko.SSHClient,
+        subject_path: str,
+        previous_output: Optional[str] = None,
+    ):
         self.ssh = ssh
         self.subject_path = subject_path
         self.previous_output = previous_output
@@ -19,13 +24,15 @@ class PluginHelper:
 
 
 class PodHelper:
-    def __init__(self, ssh, pod_name_start, namespace='default'):
+    def __init__(self, ssh, pod_name_start, namespace="default"):
         self.ssh = ssh
         self.pod_name_start = pod_name_start
         self.namespace = namespace
         self.pod = self.find_pod()
 
-    def transfer_file_from_pod(self, file_path_in_pod: str, node_saving_path: str) -> None:
+    def transfer_file_from_pod(
+        self, file_path_in_pod: str, node_saving_path: str
+    ) -> None:
         try:
             target_pod = self.find_pod()
             if target_pod is None:
@@ -33,7 +40,8 @@ class PodHelper:
                 return
 
             node_temp_path = self.copy_files_to_node(
-                target_pod, file_path_in_pod, node_saving_path)
+                target_pod, file_path_in_pod, node_saving_path
+            )
             if node_temp_path is None:
                 return
 
@@ -43,10 +51,14 @@ class PodHelper:
     def find_pod(self) -> Optional[str]:
         command = "kubectl get pods --no-headers -o custom-columns=':metadata.name'"
         stdin, stdout, stderr = self.ssh.exec_command(command)
-        pod_list = stdout.read().decode('utf-8').split()
-        return next((pod for pod in pod_list if pod.startswith(self.pod_name_start)), None)
+        pod_list = stdout.read().decode("utf-8").split()
+        return next(
+            (pod for pod in pod_list if pod.startswith(self.pod_name_start)), None
+        )
 
-    def copy_files_to_node(self, pod: str, file_path_in_pod: str, node_saving_path: str) -> Optional[str]:
+    def copy_files_to_node(
+        self, pod: str, file_path_in_pod: str, node_saving_path: str
+    ) -> Optional[str]:
         # Ensure the destination directory exists
         mkdir_cmd = f"mkdir -p {node_saving_path}"
         stdin, stdout, stderr = self.ssh.exec_command(mkdir_cmd)
@@ -77,7 +89,7 @@ class PodHelper:
             stdin, stdout, stderr = self.ssh.exec_command(command)
             status = stdout.read().decode().strip()
 
-            if status == 'Running':
+            if status == "Running":
                 print("Pod is in 'Running' state.")
                 return True
             time.sleep(1)  # Wait for 5 seconds before checking again.
@@ -95,7 +107,9 @@ class PodHelper:
         print(f"Directory and file prepared at {node_saving_path}")
         return True
 
-    def construct_query_cmd(self, start_time: Optional[int] = None, end_time: Optional[int] = None) -> str:
+    def construct_query_cmd(
+        self, start_time: Optional[int] = None, end_time: Optional[int] = None
+    ) -> str:
         """Constructs the query command to be executed inside the pod."""
         if end_time is None:
             end_time = int(time.time())
@@ -115,7 +129,7 @@ class PodHelper:
         response = stdout.read().decode()
 
         # Append output to the file on the remote server
-        append_cmd = f"echo \"{response}\" >> {node_saving_path}"
+        append_cmd = f'echo "{response}" >> {node_saving_path}'
         _, _, stderr = self.ssh.exec_command(append_cmd)
         errors = stderr.read().decode().strip()
         if errors:

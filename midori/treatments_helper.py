@@ -10,7 +10,7 @@ def get_treatments(variables: Dict[str, List[str]]) -> List[str]:
     combinations = product(*list_values)
 
     # Format combinations into concatenated strings
-    combined_strings = ['-'.join(combination) for combination in combinations]
+    combined_strings = ["-".join(combination) for combination in combinations]
 
     return combined_strings
 
