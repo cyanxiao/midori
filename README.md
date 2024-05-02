@@ -62,11 +62,12 @@ orchestrator.run()
 - `end_trial_plugins`: The plugins to be run after each trial.
 - `end_experiment_plugins`: The plugins to be run after the experiment.
 
-To help you better understand this, the green boxes in the following illustration represent the parameters:
-
-<div align="center">
-  <img src="./illustrations/flowchart.png" alt="Parameters" width="50%">
-</div>
+<details>
+  <summary>To help you better understand this, the green boxes in the collapsed illustration represent the parameters.</summary>
+  <div align="center">
+    <img src="./illustrations/flowchart.png" alt="Parameters" width="50%">
+  </div>
+</details>
 
 ### What are these Plugins?
 
