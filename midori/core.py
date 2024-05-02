@@ -55,9 +55,9 @@ class Orchestrator:
             self.__energy_collector: PodHelper = PodHelper(
                 self.__ssh, self.__prometheus_pod_name_start, self.__namespace)
             energy_node_save_path = f"{
-                self.__base_node_save_file_path}/{treatment}/energy.txt"
+                self.__base_node_save_file_path}/{treatment}/energy.json"
             self.__energy_collector.execute_query_in_pod(
-                node_saving_path=energy_node_save_path)
+                node_saving_path=energy_node_save_path, query_cmd=self.__energy_collector.construct_query_cmd())
 
             # Append the treatment name to the base node save path
             treatment_node_save_path = f"{

@@ -7,6 +7,7 @@ class PodHelper:
         self.ssh = ssh
         self.pod_name_start = pod_name_start
         self.namespace = namespace
+        self.pod = self.find_pod()
 
     def transfer_file_from_pod(self, file_path_in_pod: str, node_saving_path: str) -> None:
         try:
@@ -69,29 +70,31 @@ class PodHelper:
               timeout} seconds.")
         return False
 
-    def execute_query_in_pod(self, node_saving_path: str, start_time: Optional[int] = None, end_time: Optional[int] = None) -> None:
-        # Default time span: from current time - 60 seconds to current time
-        if end_time is None:
-            end_time = int(time.time())
-        if start_time is None:
-            start_time = end_time - 60
-
-        pod = self.find_pod()
-        if not pod:
-            print("No matching pod found.")
-            return
-
-        # Ensure directory and file exist
+    def prepare_node_environment(self, node_saving_path: str) -> bool:
+        """Prepares the node directory and file for storing outputs."""
         mkdir_cmd = f"mkdir -p {node_saving_path.rsplit('/', 1)[0]}"
         touch_cmd = f"touch {node_saving_path}"
         self.ssh.exec_command(mkdir_cmd)
         self.ssh.exec_command(touch_cmd)
-        print(f"Directory and file ensured at {node_saving_path}")
+        print(f"Directory and file prepared at {node_saving_path}")
+        return True
 
-        # Format the query to cover the specified time span
-        query_cmd = f"kubectl exec {
-            pod} -- wget -qO- 'http://localhost:9090/api/v1/query_range?query=scaph_host_power_microwatts%20%2F%201000000&start={start_time}&end={end_time}&step=1'"
-        print(f"Executing query from {start_time} to {end_time}")
+    def construct_query_cmd(self, start_time: Optional[int] = None, end_time: Optional[int] = None) -> str:
+        """Constructs the query command to be executed inside the pod."""
+        if end_time is None:
+            end_time = int(time.time())
+        if start_time is None:
+            start_time = end_time - 60
+        return f"kubectl exec {self.pod} -- wget -qO- 'http://localhost:9090/api/v1/query_range?query=scaph_host_power_microwatts%20%2F%201000000&start={start_time}&end={end_time}&step=1'"
+
+    def execute_query_in_pod(self, query_cmd: str, node_saving_path: str) -> None:
+        """Executes the provided query command in the pod and appends output to the specified path."""
+        if not self.pod:
+            print("No matching pod found.")
+            return
+
+        self.prepare_node_environment(node_saving_path)
+
         stdin, stdout, stderr = self.ssh.exec_command(query_cmd)
         response = stdout.read().decode()
 
@@ -101,5 +104,5 @@ class PodHelper:
         errors = stderr.read().decode().strip()
         if errors:
             print(f"Failed to append the response to file: {errors}")
-
-        print("Query successfully executed and output appended to the file.")
+        else:
+            print("Query successfully executed and output appended to the file.")
