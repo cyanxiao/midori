@@ -71,9 +71,9 @@ The `subject_path` should be a git repository that contains branches named `oran
 - `after_trial_cooling_time`: The cooling time after each trial, in seconds.
 - `variables`: The variables to be manipulated in the experiment. For example, if you have two variables, `x` and `y`, and you want to run the experiment with the values of `x` as `[1, 2, 3]` and the values of `y` as `[4, 5, 6]`, you can define the variables as `{'x': [1, 2, 3], 'y': [4, 5, 6]}`.
 - `subject_path`: The path of the subject to be run on the remote cluster. For example, if you want to run the subject in the `~/subject` directory, you can define the path as `~/subject`.
-- `before_experiment_plugins`: The plugins to be run before the experiment.
-- `setup_plugins`: The plugins to be run before each trial.
-- `end_trial_plugins`: The plugins to be run after each trial.
+- `before_experiment_plugins`: The plugins to be run before the experiment, such as setting environment variables, installing dependencies, close unnecessary services, etc.
+- `setup_plugins`: The plugins to be run before each trial, such as setting up treatment-dependent environment variables, cleaning up the environment, etc.
+- `end_trial_plugins`: The plugins to be run after each trial, such as collecting logs, cleaning up the environment, etc.
 - `end_experiment_plugins`: The plugins to be run after the experiment.
 
 <details>
