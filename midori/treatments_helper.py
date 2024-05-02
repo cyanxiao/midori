@@ -13,9 +13,3 @@ def get_treatments(variables: Dict[str, List[str]]) -> List[str]:
     combined_strings = ["-".join(combination) for combination in combinations]
 
     return combined_strings
-
-
-# Example usage:
-# input_dict = {"var1": ['head', 'feet', 'nose'], "var2": ['a', 'b', 'c']}
-# result = get_treatments(input_dict)
-# print(result)
