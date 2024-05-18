@@ -93,6 +93,7 @@ class Orchestrator:
                         subject_path=self.__subject_path,
                         treatment=treatment,
                         previous_output=output,
+                        repetitions=i,
                     )
                     output = plugin.execute()
 
@@ -107,6 +108,7 @@ class Orchestrator:
                         subject_path=self.__subject_path,
                         treatment=treatment,
                         previous_output=output,
+                        repetitions=i,
                     )
                     output = plugin.execute()
 

@@ -11,7 +11,7 @@ class EnergyDataCollection(PluginHelper):
         energy_collector: PodHelper = PodHelper(
             self._ssh, "prometheus-server", "default"
         )
-        energy_node_save_path = f"~/research/results/{self.treatment}/energy.json"
+        energy_node_save_path = f"~/research/results/{self.treatment + '-' + str(self.repetitions)}/energy.json"
         energy_collector.execute_query_in_pod(
             node_saving_path=energy_node_save_path,
             query_cmd=energy_collector.construct_query_cmd(),
@@ -20,6 +20,8 @@ class EnergyDataCollection(PluginHelper):
 
 class LoadTestingDataCollection(PluginHelper):
     def action(self) -> None:
-        treatment_node_save_path = f"~/research/results/{self.treatment}"
+        treatment_node_save_path = (
+            f"~/research/results/{self.treatment + '-' + str(self.repetitions)}"
+        )
         pft: PodHelper = PodHelper(self._ssh, "loadgenerator", "default")
         pft.transfer_file_from_pod("/loadgen", treatment_node_save_path)

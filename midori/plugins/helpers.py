@@ -11,11 +11,13 @@ class PluginHelper:
         subject_path: str,
         treatment: str,
         previous_output: Optional[str] = None,
+        repetitions: int = 0,
     ):
         self._ssh = ssh
         self.subject_path = subject_path
         self.previous_output = previous_output
         self.treatment = treatment
+        self.repetitions = repetitions
 
     @final
     def execute(self) -> Optional[str]:
@@ -117,7 +119,9 @@ class PodHelper:
     ) -> str:
         """Constructs the query command to be executed inside the pod."""
         if end_time is None:
-            end_time = int(time.time())
+            end_time = int(
+                time.time()
+            )  # the total trial timespan is 100s, to get the last 60 seconds
         if start_time is None:
             start_time = end_time - 60
         return f"kubectl exec {self.pod} -- wget -qO- 'http://localhost:9090/api/v1/query_range?query=scaph_host_power_microwatts%20%2F%201000000&start={start_time}&end={end_time}&step=1'"
